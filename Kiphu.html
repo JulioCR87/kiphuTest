@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compra</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+            font-family: Arial, sans-serif;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-bottom: 20px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        input {
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            width: 300px;
+        }
+        pre {
+            font-size: 14px;
+            color: #333;
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 600px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+    <script>
+        async function makeApiCall() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            if (!apiKey) {
+                alert('Por favor, ingresa tu API Key.');
+                return;
+            }
+            try {
+                const resp = await fetch('https://payment-api.khipu.com/v3/payments', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-key': apiKey
+                    },
+                    body: JSON.stringify({
+                        amount: 1000,
+                        currency: 'CLP',
+                        subject: 'Cobro de prueba'
+                    })
+                });
+
+                if (!resp.ok) {
+                    const errorDetails = await resp.json();
+                    throw new Error(`Error ${resp.status}: ${errorDetails.message || resp.statusText}`);
+                }
+
+                const data = await resp.json();
+                document.getElementById('apiResponse').innerText = 'PAGO REALIZADO Response a Continuación' + JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('apiResponse').innerText = 'Error al llamar a la API, NO SE REALIZO EL PAGO: ' + error.message;
+            }
+        }
+    </script>
+</head>
+<body>
+    <input type="text" id="apiKey" placeholder="Ingresa tu API Key" />
+    <button onclick="makeApiCall()">Pago</button>
+    <pre id="apiResponse">Pulsa el botón para obtener datos...</pre>
+</body>
+</html>
